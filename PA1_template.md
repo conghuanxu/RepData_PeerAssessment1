@@ -4,16 +4,18 @@ author: "Conghuan Xu"
 date: "February 13, 2015"
 output: html_document
 ---
-  
+
 ##Loading and preprocessing the data
-```{r load and process data}
+
+```r
         processed <- read.csv("activity.csv") ## read data
         processed$date <- as.Date(processed$date) ## make date to date type
 ```
   
 ##What is mean total number of steps taken per day?
   
-```{r Calculate the total number of the steps taken per day,results='hide'}
+
+```r
         uniquedate <- unique(processed$date) ## list all the date
         n <- length(uniquedate) ## n is the total days
         countdailystep <- data.frame(matrix(nrow = n, ncol = 0))
@@ -29,19 +31,24 @@ output: html_document
   
 We can plot the histogram of the total number of steps taken each day.
   
-```{r plot histogram}
+
+```r
 hist(countdailystep$dailystep, main = "Histogram of Daily Total Steps With Original Data", xlab = "Total Step of A Day", ylab = "Number of Days")
 ```
-```{r get the mean and median,results='hide'}
+
+![plot of chunk plot histogram](figure/plot histogram-1.png) 
+
+```r
 mean.1 <- ceiling(mean(countdailystep$dailystep))
 median.1 <- median(countdailystep$dailystep)
 ```
   
-Then we can get mean = `r mean.1`, and median = `r median.1`.  
+Then we can get mean = 9355, and median = 10395.  
 
 ##What is the average daily activity pattern?  
 First we need to calculate the mean of every interval
-```{r calculate mean of every interval,results='hide'}
+
+```r
         uniquedate <- unique(processed$date)
         n <- 288 ## n is the total number of intervals
         m <- length(uniquedate) ## total days
@@ -57,22 +64,27 @@ First we need to calculate the mean of every interval
         stepofinterval
 ```
 Then we can plot
-```{r plot average step and max}
+
+```r
 max.1 <- stepofinterval[which.max(stepofinterval$steps),]
 plot(stepofinterval$interval,stepofinterval$steps, type = 'l', main = "Avgerage Steps of A Day", xlab="Time Intervals of A Day", ylab = "Average Steps")
 abline(v = max.1$interval, col = "blue")
 ```
+
+![plot of chunk plot average step and max](figure/plot average step and max-1.png) 
   
-The maximum number of steps is `r round(max.1$steps, digits = 1)`, it happens in the interval `r max.1$interval`  
+The maximum number of steps is 179.1, it happens in the interval 835  
 
 ##Imputing missing values  
 
-```{r count na}
+
+```r
 numofna <- sum(is.na(processed$steps)) ## count number of "NA"
 ```
-The total number of missing values in the dataset is `r numofna`.  
+The total number of missing values in the dataset is 2304.  
 In order to fill the missing data, one easy thing we can do is to repalce the "NA" with the average number of steps in that interval. In paticular, with use the command ` ceiling()` to get the integer steps.
-```{r fill na with average steps}
+
+```r
         stepofinterval$steps <- ceiling(stepofinterval$steps)
         onlyna <- processed[is.na(processed),] ## select the rows with NA
         nadate <- unique(onlyna$date) ##list all the Date with NA
@@ -84,7 +96,8 @@ In order to fill the missing data, one easy thing we can do is to repalce the "N
 ```
   
 Plot the new histogram and compute new mean, new median
-```{r plot mean and median for the filled data}
+
+```r
         n <- length(uniquedate) ## n is the total days
         countdailystep.1 <- data.frame(matrix(nrow = n, ncol = 0))
         countdailystep.1$dailystep <-  vector(mode = "integer",length = n)
@@ -95,16 +108,22 @@ Plot the new histogram and compute new mean, new median
                 countdailystep.1$dailystep[i] <- sum(tempdata$steps, na.rm = T)
         }
         hist(countdailystep.1$dailystep, main = "Histogram of Daily Total Steps With Filled Data", xlab = "Total Step of A Day", ylab = "Number of Days")
+```
+
+![plot of chunk plot mean and median for the filled data](figure/plot mean and median for the filled data-1.png) 
+
+```r
         options(scipen=999) ##disable the scientific notation
         mean.2 <- ceiling(mean(countdailystep.1$dailystep))
         median.2 <- median(countdailystep.1$dailystep)
 ```
-Our new mean is `r mean.2` and new median is `r median.2`.
+Our new mean is 10599 and new median is 10395.
 As we see in the histogram, the impact is that the days with 0 steps is largely reduced. As the consequece, total daily number of steps will increase.  
 
 ##Are there differences in activity patterns between weekdays and weekends?  
 
-```{r create weekday and weekend variable}
+
+```r
         processed.2 <- processed.1 ##replicate the data
         processed.2$weekday <- weekdays(processed.2$date)
         for (i in 1:nrow(processed.2)) {                                         
@@ -119,12 +138,18 @@ As we see in the histogram, the impact is that the days with 0 steps is largely 
 ```
   
 We can see the levels like this  
-```{r }
+
+```r
 levels(processed.2$weekday)
+```
+
+```
+## [1] "Weekday" "Weekend"
 ```
    
 Next we do is to calculate average steps with weekend and weekday.
-```{r calculate average steps with weekend & weekday}
+
+```r
         n <- 288
         weekdaydata <- processed.2[processed.2$weekday == "Weekday",] ##select the rows with weekday
         weekenddata <- processed.2[processed.2$weekday == "Weekend",]
@@ -146,7 +171,10 @@ Next we do is to calculate average steps with weekend and weekday.
   
 
 
-```{r}
+
+```r
 library(lattice) ##if you do not have a "latice" package, you should install it first
 xyplot(stepofinterval.weekday$steps ~ stepofinterval.weekday$interval|stepofinterval.weekday$weekday, type = 'l', xlab="Time Intervals of A Day", ylab = "Average Steps")
 ```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
