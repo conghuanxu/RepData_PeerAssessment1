@@ -1,10 +1,10 @@
 ---
 title: "Peerassessments1"
 author: "Conghuan Xu"
-date: "February 13, 2015"
+date: "March 13, 2015"
 output: html_document
 ---
-
+  
 ##Loading and preprocessing the data
 
 ```r
